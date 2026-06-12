@@ -1,4 +1,5 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { AutoDesignDialog } from './AutoDesignDialog'
 import { useStore } from '../state/store'
 import type { Slideshow } from '../types/slideshow'
 import { formatTime } from '../lib/util'
@@ -13,6 +14,7 @@ export function TopBar() {
   const setPreviewOpen = useStore((s) => s.setPreviewOpen)
   const loadDoc = useStore((s) => s.loadDoc)
   const fileInput = useRef<HTMLInputElement | null>(null)
+  const [autoDesignOpen, setAutoDesignOpen] = useState(false)
 
   const save = () => {
     const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' })
@@ -60,10 +62,14 @@ export function TopBar() {
         <button className="btn" onClick={save}>
           Save
         </button>
+        <button className="btn" onClick={() => setAutoDesignOpen(true)}>
+          ✦ Auto-design
+        </button>
         <button className="btn btn-primary" onClick={() => setPreviewOpen(true)}>
           ▶ Preview
         </button>
       </div>
+      {autoDesignOpen && <AutoDesignDialog onClose={() => setAutoDesignOpen(false)} />}
       <input
         ref={fileInput}
         hidden

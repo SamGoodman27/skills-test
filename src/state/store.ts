@@ -3,6 +3,7 @@ import type { Slide, SlideElement, Slideshow } from '../types/slideshow'
 import { DEFAULT_BACKGROUND, DEFAULT_TEXT_STYLE } from '../types/slideshow'
 import { uid } from '../lib/util'
 import { demoSlideshow } from '../data/demo'
+import { getOrnament } from '../data/ornaments'
 
 const HISTORY_LIMIT = 100
 
@@ -35,6 +36,7 @@ interface EditorState {
 
   addTextElement: () => void
   addMediaElement: (type: 'image' | 'video', src: string) => void
+  addOrnamentElement: (ref: string) => void
   deleteElement: (id: string) => void
 }
 
@@ -185,6 +187,32 @@ export const useStore = create<EditorState>((set, get) => ({
           ? { ...base, type: 'image', src, fit: 'cover', animation: 'ken-burns' }
           : { ...base, type: 'video', src, fit: 'cover', muted: true, loop: true, animation: 'fade' }
       slide.elements.push(el)
+    })
+    set({ selectedElement: id })
+  },
+
+  addOrnamentElement: (ref) => {
+    const id = uid()
+    const orn = getOrnament(ref)
+    get().mutate((doc) => {
+      const slide = doc.slides[get().selectedSlide]
+      slide.elements.push({
+        id,
+        type: 'ornament',
+        ref,
+        color: '#f0a83c',
+        frame: {
+          x: 0.4,
+          y: 0.4,
+          w: orn?.defaultFrame.w ?? 0.15,
+          h: orn?.defaultFrame.h ?? 0.15,
+        },
+        rotation: 0,
+        opacity: 1,
+        zIndex: slide.elements.length + 1,
+        animation: 'fade',
+        animationDelay: 0,
+      })
     })
     set({ selectedElement: id })
   },

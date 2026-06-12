@@ -27,8 +27,15 @@ built from inline SVG placeholders, so it works with zero assets.
   per-show default with per-slide overrides; adjustable transition length.
 - **Element animations** — fade, fade up/down, zoom in, Ken Burns
   (direction derived from the element id, so it's stable but varied).
-- **Backgrounds** — solid, two-stop gradient with angle, or image with
-  blur and a tinted scrim.
+- **Backgrounds** — solid, two-stop gradient with angle, image with blur
+  and tinted scrim, tileable patterns (dots/grid/stripes/waves/crosses) in
+  any two colors, or "blurred photo" echoing the slide's own image.
+- **Ornaments** — a built-in library of recolorable SVG decorations
+  (corners, frames, dividers, shapes, doodles) placed like any element.
+- **Auto-design** — one click restyles the whole show from a theme
+  (Elegant, Vibrant, Minimal, Scrapbook) with a Uniform / Varied / Random
+  consistency dial; seeded shuffle re-rolls the look, and it's one undo
+  step. No AI required — this is the deterministic half of Magic Create.
 - **Timing** — default slide duration plus per-slide override.
 - **Page dimensions** — 16:9, 9:16, 1:1, 4:3 presets or custom; element
   frames are normalized 0–1 so layouts survive dimension changes.
@@ -57,8 +64,8 @@ built from inline SVG placeholders, so it works with zero assets.
 
 ## Roadmap
 
-1. ~~Schema + player + editor core~~ (this phase)
-2. Ornament library, pattern backgrounds, more fonts, blurred-media background
+1. ~~Schema + player + editor core~~
+2. ~~Ornaments, pattern & blurred-media backgrounds, theme auto-design~~
 3. Export service: PNG / PDF / **MP4** (headless Chromium + FFmpeg) / HTML / PPTX
 4. AI service layer: select-and-prompt copywriting, style-by-prompt,
    image edits (Claude + image model)

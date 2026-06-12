@@ -11,6 +11,8 @@ import type {
 import { ANIMATIONS, FONT_FAMILIES, TRANSITIONS } from '../types/slideshow'
 import { ColorInput, Field, NumberInput, Row, SelectInput, SliderInput } from './fields'
 import { readFileAsDataURL } from '../lib/util'
+import { ORNAMENTS } from '../data/ornaments'
+import { PATTERNS } from '../data/patterns'
 
 type Tab = 'element' | 'slide' | 'show'
 
@@ -74,10 +76,29 @@ function ElementPanel({ element, slideIndex }: { element: SlideElement; slideInd
   return (
     <>
       <div className="panel-title">
-        {element.type === 'text' ? 'Text' : element.type === 'image' ? 'Image' : 'Video'}
+        {element.type === 'text'
+          ? 'Text'
+          : element.type === 'image'
+            ? 'Image'
+            : element.type === 'video'
+              ? 'Video'
+              : 'Ornament'}
       </div>
 
       {element.type === 'text' && <TextFields element={element} update={update} />}
+
+      {element.type === 'ornament' && (
+        <Field label="Color">
+          <ColorInput
+            value={element.color}
+            onChange={(v) =>
+              update((el) => {
+                if (el.type === 'ornament') el.color = v
+              })
+            }
+          />
+        </Field>
+      )}
 
       {(element.type === 'image' || element.type === 'video') && (
         <Field label="Fit">
@@ -85,7 +106,7 @@ function ElementPanel({ element, slideIndex }: { element: SlideElement; slideInd
             value={element.fit}
             onChange={(v) =>
               update((el) => {
-                if (el.type !== 'text') el.fit = v
+                if (el.type === 'image' || el.type === 'video') el.fit = v
               })
             }
             options={[
@@ -291,6 +312,8 @@ function SlidePanel({ slide, slideIndex }: { slide: Slide; slideIndex: number })
   const mutate = useStore((s) => s.mutate)
   const addTextElement = useStore((s) => s.addTextElement)
   const addMediaElement = useStore((s) => s.addMediaElement)
+  const addOrnamentElement = useStore((s) => s.addOrnamentElement)
+  const [ornamentsOpen, setOrnamentsOpen] = useState(false)
   const imageInput = useRef<HTMLInputElement | null>(null)
   const videoInput = useRef<HTMLInputElement | null>(null)
 
@@ -310,6 +333,22 @@ function SlidePanel({ slide, slideIndex }: { slide: Slide; slideIndex: number })
         <button className="btn" onClick={() => imageInput.current?.click()}>+ Image</button>
         <button className="btn" onClick={() => videoInput.current?.click()}>+ Video</button>
       </Row>
+      <button className="btn btn-block" onClick={() => setOrnamentsOpen((o) => !o)}>
+        {ornamentsOpen ? 'Hide ornaments' : '+ Ornament…'}
+      </button>
+      {ornamentsOpen && (
+        <div className="ornament-grid">
+          {ORNAMENTS.map((o) => (
+            <button
+              key={o.id}
+              className="ornament-cell"
+              title={o.name}
+              onClick={() => addOrnamentElement(o.id)}
+              dangerouslySetInnerHTML={{ __html: o.svg }}
+            />
+          ))}
+        </div>
+      )}
       <input
         ref={imageInput}
         hidden
@@ -370,9 +409,65 @@ function BackgroundPanel({
             { value: 'solid', label: 'Solid color' },
             { value: 'gradient', label: 'Gradient' },
             { value: 'image', label: 'Image' },
+            { value: 'pattern', label: 'Pattern' },
+            { value: 'blurred-media', label: 'Blurred photo (this slide)' },
           ]}
         />
       </Field>
+
+      {bg.type === 'pattern' && (
+        <>
+          <Row>
+            <Field label="Base">
+              <ColorInput value={bg.color} onChange={(v) => update((b) => (b.color = v))} />
+            </Field>
+            <Field label="Pattern">
+              <ColorInput
+                value={bg.patternColor}
+                onChange={(v) => update((b) => (b.patternColor = v))}
+              />
+            </Field>
+          </Row>
+          <Field label="Tile">
+            <SelectInput
+              value={bg.patternRef}
+              onChange={(v) => update((b) => (b.patternRef = v))}
+              options={PATTERNS.map((p) => ({ value: p.id, label: p.name }))}
+            />
+          </Field>
+          <Field label="Scale">
+            <SliderInput
+              value={bg.patternScale}
+              min={0.5}
+              max={3}
+              step={0.1}
+              onChange={(v) => update((b) => (b.patternScale = v))}
+            />
+          </Field>
+        </>
+      )}
+
+      {bg.type === 'blurred-media' && (
+        <>
+          <Field label="Blur">
+            <SliderInput
+              value={bg.blur}
+              min={6}
+              max={60}
+              step={1}
+              onChange={(v) => update((b) => (b.blur = v))}
+            />
+          </Field>
+          <Field label="Scrim strength">
+            <SliderInput
+              value={bg.overlayOpacity}
+              min={0}
+              max={1}
+              onChange={(v) => update((b) => (b.overlayOpacity = v))}
+            />
+          </Field>
+        </>
+      )}
 
       {bg.type === 'solid' && (
         <Field label="Color">

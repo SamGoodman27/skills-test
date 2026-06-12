@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react'
 import type { Background, Settings, Slide, SlideElement } from '../types/slideshow'
 import { elementMotion } from './effects'
+import { getOrnament } from '../data/ornaments'
+import { patternCss } from '../data/patterns'
 
 /**
  * Pure renderer for one slide at a moment in time.
@@ -23,7 +25,7 @@ export function SlideRenderer({
       className="slide-surface"
       style={{ width: settings.width, height: settings.height }}
     >
-      <BackgroundLayer bg={slide.background} />
+      <BackgroundLayer bg={slide.background} slide={slide} />
       {slide.elements.map((el) => (
         <ElementView
           key={el.id}
@@ -44,18 +46,36 @@ function backgroundCss(bg: Background): CSSProperties {
       .join(', ')
     return { background: `linear-gradient(${bg.gradientAngle}deg, ${stops})` }
   }
+  if (bg.type === 'pattern') {
+    return {
+      background: bg.color,
+      ...patternCss(bg.patternRef, bg.patternColor, bg.patternScale),
+    }
+  }
   return { background: bg.color }
 }
 
-function BackgroundLayer({ bg }: { bg: Background }) {
+function BackgroundLayer({ bg, slide }: { bg: Background; slide: Slide }) {
+  // 'blurred-media' echoes the slide's own first photo behind the layout.
+  const mediaSrc =
+    bg.type === 'image'
+      ? bg.src
+      : bg.type === 'blurred-media'
+        ? slide.elements.find((e) => e.type === 'image')?.src
+        : undefined
+  const blur = bg.type === 'blurred-media' ? Math.max(bg.blur, 18) : bg.blur
+
   return (
     <div className="slide-bg" style={backgroundCss(bg)}>
-      {bg.type === 'image' && bg.src && (
+      {mediaSrc && (
         <img
           className="slide-bg-media"
-          src={bg.src}
+          src={mediaSrc}
           alt=""
-          style={{ filter: bg.blur > 0 ? `blur(${bg.blur}px)` : undefined }}
+          style={{
+            filter: blur > 0 ? `blur(${blur}px)` : undefined,
+            transform: bg.type === 'blurred-media' ? 'scale(1.15)' : undefined,
+          }}
         />
       )}
       {bg.overlayOpacity > 0 && (
@@ -142,6 +162,13 @@ function ElementView({
               style={{ objectFit: el.fit, ...motion.media }}
             />
           </div>
+        )}
+        {el.type === 'ornament' && (
+          <div
+            className="el-ornament"
+            style={{ color: el.color }}
+            dangerouslySetInnerHTML={{ __html: getOrnament(el.ref)?.svg ?? '' }}
+          />
         )}
       </div>
     </div>

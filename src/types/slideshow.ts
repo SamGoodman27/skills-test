@@ -74,7 +74,14 @@ export interface VideoElement extends ElementBase {
   loop: boolean
 }
 
-export type SlideElement = TextElement | ImageElement | VideoElement
+/** A decorative SVG from the built-in library, recolorable via currentColor. */
+export interface OrnamentElement extends ElementBase {
+  type: 'ornament'
+  ref: string
+  color: string
+}
+
+export type SlideElement = TextElement | ImageElement | VideoElement | OrnamentElement
 
 export interface GradientStop {
   color: string
@@ -82,12 +89,16 @@ export interface GradientStop {
 }
 
 export interface Background {
-  type: 'solid' | 'gradient' | 'image'
+  /** 'blurred-media' reuses the slide's first image, scaled up and blurred. */
+  type: 'solid' | 'gradient' | 'image' | 'pattern' | 'blurred-media'
   color: string
   gradientAngle: number
   gradientStops: GradientStop[]
   src?: string
   blur: number
+  patternRef: string
+  patternColor: string
+  patternScale: number
   /** Tinted scrim over image backgrounds for text readability. */
   overlayColor: string
   overlayOpacity: number
@@ -147,6 +158,9 @@ export const DEFAULT_BACKGROUND: Background = {
     { color: '#0e0d16', at: 1 },
   ],
   blur: 0,
+  patternRef: 'dots',
+  patternColor: '#3a3650',
+  patternScale: 1,
   overlayColor: '#000000',
   overlayOpacity: 0,
 }
