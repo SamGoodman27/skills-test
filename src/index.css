@@ -1,0 +1,533 @@
+/*
+ * Lumière — editor chrome.
+ * Darkroom direction: the UI stays a deep, warm-neutral dark so the user's
+ * photos carry all the color; the single accent is the amber of a darkroom
+ * safelight, spent on primary actions and selection.
+ */
+
+:root {
+  --bg: #131216;
+  --panel: #1b1a20;
+  --panel-2: #211f27;
+  --line: #2e2c36;
+  --text: #e9e6e0;
+  --text-dim: #9b96a3;
+  --accent: #f0a83c;
+  --accent-ink: #2a1c05;
+  --danger: #e2654f;
+  --radius: 8px;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-brand: 'Fraunces', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  height: 52px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.brand {
+  font-family: var(--font-brand);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffd9a0, var(--accent) 70%);
+  box-shadow: 0 0 12px rgba(240, 168, 60, 0.55);
+}
+
+.topbar-doc {
+  color: var(--text-dim);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  margin: 0 4px;
+}
+
+/* ---------- Buttons & inputs ---------- */
+
+.btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: #4a4757;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.btn-danger {
+  color: var(--danger);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-icon {
+  width: 38px;
+}
+
+input[type='text'],
+input[type='number'],
+select,
+textarea {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+.color-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.color-input input[type='color'] {
+  width: 34px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+/* ---------- Workspace layout ---------- */
+
+.workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Slide list ---------- */
+
+.slide-list {
+  width: 216px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.slide-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 2px;
+}
+
+.slide-thumb {
+  position: relative;
+  cursor: pointer;
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 2px solid transparent;
+}
+
+.slide-thumb.selected {
+  border-color: var(--accent);
+}
+
+.slide-thumb-canvas {
+  overflow: hidden;
+  border-radius: 5px;
+  background: #000;
+}
+
+.slide-thumb-num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.slide-thumb-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.slide-thumb-actions button {
+  flex: 1;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 3px 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.slide-thumb-actions button:hover {
+  color: var(--text);
+}
+
+/* ---------- Canvas ---------- */
+
+.canvas-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at center, #17161b 0%, var(--bg) 75%);
+}
+
+.canvas-scaler {
+  position: relative;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+  border-radius: 3px;
+}
+
+.canvas-doc {
+  position: absolute;
+  inset: 0;
+  transform-origin: top left;
+}
+
+.canvas-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.el-hit {
+  position: absolute;
+  cursor: move;
+  border: 1px dashed transparent;
+}
+
+.el-hit:hover {
+  border-color: rgba(240, 168, 60, 0.5);
+}
+
+.el-hit.selected {
+  border: 1.5px solid var(--accent);
+}
+
+.el-handle {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: var(--accent);
+  border: 2px solid #131216;
+  border-radius: 3px;
+  z-index: 2;
+}
+
+.el-handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.el-handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.el-handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.el-handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+/* ---------- Inspector ---------- */
+
+.inspector {
+  width: 270px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.inspector-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px 24px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs button {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font: inherit;
+  padding: 11px 0 9px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.tabs button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  margin: 18px 0 8px;
+}
+
+.panel-title:first-child {
+  margin-top: 4px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.field-label {
+  display: block;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.field-row {
+  display: flex;
+  gap: 8px;
+}
+
+.field-row .field,
+.field-row .btn {
+  flex: 1;
+}
+
+.audio-name {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Slide surface (shared editor / player / thumbs) ---------- */
+
+.slide-surface {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.slide-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.slide-bg-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide-bg-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.el-frame {
+  position: absolute;
+}
+
+.el-motion {
+  width: 100%;
+  height: 100%;
+  will-change: transform, opacity;
+}
+
+.el-text {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.el-media-clip {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.el-media {
+  width: 100%;
+  height: 100%;
+  display: block;
+  will-change: transform;
+}
+
+/* ---------- Player overlay ---------- */
+
+.player-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.player-stage {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.player-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.player-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity, clip-path;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: rgba(19, 18, 22, 0.92);
+  border-top: 1px solid var(--line);
+}
+
+.player-scrubber {
+  flex: 1;
+}
+
+.player-time {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .el-motion,
+  .el-media,
+  .player-layer {
+    will-change: auto;
+  }
+}
