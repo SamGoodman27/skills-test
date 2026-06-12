@@ -64,6 +64,17 @@ built from inline SVG placeholders, so it works with zero assets.
     so output quality is independent of machine speed, and muxes the
     embedded audio track.
 
+## Magic Create
+
+**✨ Magic Create** (top bar) builds a finished slideshow from your media:
+drop in photos/clips, type the occasion ("elegant anniversary", "summer
+road trip"), pick Uniform / Varied / Random, and Generate. With the AI
+service running, Claude looks at the photos, sequences them into a story
+(opener → groups → closer), writes the headline and captions, and picks
+the theme; deterministic templates then assemble the slides, so the
+result is always valid and fully editable afterward. The **Without AI**
+button does sequencing and styling locally — no keys needed.
+
 ## AI assist (optional)
 
 Select a text or image element and the inspector grows an **AI assist**
@@ -109,6 +120,5 @@ npm run dev                          # terminal 2 (proxies /ai to the service)
 2. ~~Ornaments, pattern & blurred-media backgrounds, theme auto-design~~
 3. ~~Exports: PNG / PDF / PPTX / HTML / WebM / MP4 renderer~~
 4. ~~AI service: select-and-prompt copywriting, style-by-prompt, image edits~~
-5. Magic Create: analyze media → plan → deterministic assembly, with a
-   Uniform ↔ Varied ↔ Random consistency dial
+5. ~~Magic Create: analyze media → plan → deterministic assembly~~
 6. Beat-synced transitions, bundled royalty-free music, GIF export

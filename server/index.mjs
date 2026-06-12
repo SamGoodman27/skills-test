@@ -8,6 +8,7 @@
  * Endpoints (the Vite dev server proxies /ai to this):
  *   POST /ai/text   { mode: 'copy'|'style', prompt, element, context }
  *   POST /ai/image  { prompt, image: dataURL }   (requires GEMINI_API_KEY)
+ *   POST /ai/magic  { images: [{id, data}], vibe }  -> slideshow plan
  */
 import { createServer } from 'node:http'
 import { readFileSync, existsSync } from 'node:fs'
@@ -50,12 +51,12 @@ const TEXT_STYLE_SCHEMA = {
   additionalProperties: false,
 }
 
-async function callClaude(system, userContent, toolName, schema) {
+async function callClaude(system, userContent, toolName, schema, maxTokens = 1024) {
   const { default: Anthropic } = await import('@anthropic-ai/sdk')
   const client = new Anthropic({ apiKey: ANTHROPIC_KEY })
   const msg = await client.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: maxTokens,
     system,
     messages: [{ role: 'user', content: userContent }],
     tools: [{ name: toolName, description: 'Emit the result.', input_schema: schema }],
@@ -141,6 +142,78 @@ async function handleImage(body) {
   return { image: `data:${data.mimeType ?? data.mime_type ?? 'image/png'};base64,${data.data}` }
 }
 
+const MAGIC_SCHEMA = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'A short evocative title for the show.' },
+    themeId: {
+      type: 'string',
+      enum: ['elegant', 'vibrant', 'minimal', 'scrapbook'],
+      description: 'The visual theme that best fits the photos and the vibe.',
+    },
+    slides: {
+      type: 'array',
+      description: 'The slide sequence, telling a story: opener, body, closer.',
+      items: {
+        type: 'object',
+        properties: {
+          media: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Image ids on this slide (0 for text-only, up to 4).',
+          },
+          layout: {
+            type: 'string',
+            enum: ['title', 'full', 'split-left', 'split-right', 'pair', 'grid', 'closing'],
+          },
+          headline: { type: 'string', description: 'Large display text, if any. Keep it short.' },
+          caption: { type: 'string', description: 'Small supporting text, if any.' },
+          durationMs: { type: 'number', minimum: 2500, maximum: 12000 },
+        },
+        required: ['media', 'layout'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['title', 'themeId', 'slides'],
+  additionalProperties: false,
+}
+
+async function handleMagic(body) {
+  if (!ANTHROPIC_KEY) throw httpError(501, 'ANTHROPIC_API_KEY is not configured in server/.env')
+  const { images = [], vibe = '' } = body
+  if (images.length === 0) throw httpError(400, 'no images provided')
+
+  const content = []
+  for (const img of images) {
+    const m = /^data:(image\/\w+);base64,(.+)$/.exec(img.data ?? '')
+    if (!m) throw httpError(400, `image ${img.id} must be a base64 data URL`)
+    content.push({ type: 'text', text: `Image id "${img.id}":` })
+    content.push({
+      type: 'image',
+      source: { type: 'base64', media_type: m[1], data: m[2] },
+    })
+  }
+  content.push({
+    type: 'text',
+    text:
+      `Design a photo slideshow from these ${images.length} images.\n` +
+      `Vibe / occasion from the user: ${vibe || '(none given — infer from the photos)'}\n` +
+      'Rules: open with the strongest image as a title slide with a headline; group related images ' +
+      '(pair/grid) when it helps the story; give a caption only where it adds something; end with a ' +
+      'closing slide. Use every image at most once and skip near-duplicates or weak shots. ' +
+      'Write headlines/captions grounded in what is actually visible.',
+  })
+
+  return callClaude(
+    'You are a slideshow designer. Sequence the photos into a story and emit a plan.',
+    content,
+    'emit_plan',
+    MAGIC_SCHEMA,
+    4096,
+  )
+}
+
 function httpError(status, message) {
   const e = new Error(message)
   e.status = status
@@ -161,6 +234,7 @@ const server = createServer(async (req, res) => {
     let result
     if (req.url === '/ai/text') result = await handleText(body)
     else if (req.url === '/ai/image') result = await handleImage(body)
+    else if (req.url === '/ai/magic') result = await handleMagic(body)
     else throw httpError(404, 'not found')
 
     res.writeHead(200, { 'content-type': 'application/json' })

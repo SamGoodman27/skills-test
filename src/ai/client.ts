@@ -63,3 +63,10 @@ export function aiRestyleText(
 export function aiEditImage(src: string, prompt: string): Promise<{ image: string }> {
   return post('/ai/image', { prompt, image: src })
 }
+
+export function aiMagicPlan(
+  images: { id: string; data: string }[],
+  vibe: string,
+): Promise<import('../lib/magic').MagicPlan> {
+  return post('/ai/magic', { images, vibe })
+}

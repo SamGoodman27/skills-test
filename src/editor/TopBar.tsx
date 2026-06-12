@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { AutoDesignDialog } from './AutoDesignDialog'
+import { MagicCreateDialog } from './MagicCreateDialog'
 import { ExportMenu } from './ExportMenu'
 import { useStore } from '../state/store'
 import type { Slideshow } from '../types/slideshow'
@@ -16,6 +17,7 @@ export function TopBar() {
   const loadDoc = useStore((s) => s.loadDoc)
   const fileInput = useRef<HTMLInputElement | null>(null)
   const [autoDesignOpen, setAutoDesignOpen] = useState(false)
+  const [magicOpen, setMagicOpen] = useState(false)
 
   const save = () => {
     const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' })
@@ -63,6 +65,9 @@ export function TopBar() {
         <button className="btn" onClick={save}>
           Save
         </button>
+        <button className="btn" onClick={() => setMagicOpen(true)}>
+          ✨ Magic Create
+        </button>
         <button className="btn" onClick={() => setAutoDesignOpen(true)}>
           ✦ Auto-design
         </button>
@@ -72,6 +77,7 @@ export function TopBar() {
         </button>
       </div>
       {autoDesignOpen && <AutoDesignDialog onClose={() => setAutoDesignOpen(false)} />}
+      {magicOpen && <MagicCreateDialog onClose={() => setMagicOpen(false)} />}
       <input
         ref={fileInput}
         hidden
