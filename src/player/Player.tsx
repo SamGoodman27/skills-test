@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Slideshow } from '../types/slideshow'
-import { resolveTimeline, totalDuration } from './timeline'
-import { transitionStyle } from './effects'
-import { SlideRenderer } from './SlideRenderer'
+import { totalDuration } from './timeline'
+import { StageFrame } from './StageFrame'
 import { formatTime } from '../lib/util'
 
 /**
@@ -10,7 +9,15 @@ import { formatTime } from '../lib/util'
  * visual is derived from `t` through resolveTimeline, so the scrubber can
  * jump anywhere and the picture is always correct.
  */
-export function Player({ doc, onClose }: { doc: Slideshow; onClose: () => void }) {
+export function Player({
+  doc,
+  onClose,
+  onEnded,
+}: {
+  doc: Slideshow
+  onClose: () => void
+  onEnded?: () => void
+}) {
   const total = totalDuration(doc)
   const [t, setT] = useState(0)
   const [playing, setPlaying] = useState(true)
@@ -19,6 +26,10 @@ export function Player({ doc, onClose }: { doc: Slideshow; onClose: () => void }
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const [scale, setScale] = useState(1)
+  const onEndedRef = useRef(onEnded)
+  useEffect(() => {
+    onEndedRef.current = onEnded
+  }, [onEnded])
 
   const seek = useCallback(
     (next: number, resync = true) => {
@@ -45,6 +56,7 @@ export function Player({ doc, onClose }: { doc: Slideshow; onClose: () => void }
           playingRef.current = false
           setPlaying(false)
           audioRef.current?.pause()
+          onEndedRef.current?.()
         }
         tRef.current = next
         setT(next)
@@ -101,10 +113,6 @@ export function Player({ doc, onClose }: { doc: Slideshow; onClose: () => void }
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose, seek])
 
-  const pos = resolveTimeline(doc, t)
-  const slide = doc.slides[pos.slideIndex]
-  const prev = pos.prevSlideIndex !== null ? doc.slides[pos.prevSlideIndex] : null
-
   return (
     <div className="player-overlay">
       <div className="player-stage" ref={stageRef}>
@@ -116,31 +124,7 @@ export function Player({ doc, onClose }: { doc: Slideshow; onClose: () => void }
             transform: `translate(-50%, -50%) scale(${scale})`,
           }}
         >
-          {prev && (
-            <div className="player-layer">
-              <SlideRenderer
-                slide={prev}
-                settings={doc.settings}
-                time={prev.duration}
-                playVideos
-              />
-            </div>
-          )}
-          <div
-            className="player-layer"
-            style={
-              pos.transitionProgress !== null
-                ? transitionStyle(slide.transition, pos.transitionProgress)
-                : undefined
-            }
-          >
-            <SlideRenderer
-              slide={slide}
-              settings={doc.settings}
-              time={pos.localTime}
-              playVideos
-            />
-          </div>
+          <StageFrame doc={doc} t={t} playVideos />
         </div>
       </div>
 

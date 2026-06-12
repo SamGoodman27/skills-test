@@ -45,6 +45,24 @@ built from inline SVG placeholders, so it works with zero assets.
   to skim, Esc to close. Every frame is a pure function of time `t`.
 - **Save / open** — projects round-trip as self-contained
   `.slideshow.json` files (media embedded as data URIs).
+- **Export** — from the Export menu:
+  - **PNG** per slide and **PDF** (one page per slide, exact dimensions)
+  - **PowerPoint (.pptx)** — slides as full-bleed snapshots
+  - **Web page (.html)** — a single self-playing file with all
+    transitions, animations, and music embedded; share it anywhere
+  - **Record video (WebM)** — records the preview via tab capture
+    (Chrome), music included
+  - **Frame-perfect MP4** — offline renderer:
+
+    ```bash
+    npm run build
+    npx playwright install chromium   # once; ffmpeg must be on PATH
+    node scripts/render-video.mjs my-show.slideshow.json out.mp4 --fps 30
+    ```
+
+    It steps the timeline frame by frame through the `?render` harness,
+    so output quality is independent of machine speed, and muxes the
+    embedded audio track.
 
 ## Architecture notes
 
@@ -66,7 +84,7 @@ built from inline SVG placeholders, so it works with zero assets.
 
 1. ~~Schema + player + editor core~~
 2. ~~Ornaments, pattern & blurred-media backgrounds, theme auto-design~~
-3. Export service: PNG / PDF / **MP4** (headless Chromium + FFmpeg) / HTML / PPTX
+3. ~~Exports: PNG / PDF / PPTX / HTML / WebM / MP4 renderer~~
 4. AI service layer: select-and-prompt copywriting, style-by-prompt,
    image edits (Claude + image model)
 5. Magic Create: analyze media → plan → deterministic assembly, with a

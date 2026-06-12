@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { Slide, SlideElement, Slideshow } from '../types/slideshow'
 import { DEFAULT_BACKGROUND, DEFAULT_TEXT_STYLE } from '../types/slideshow'
 import { uid } from '../lib/util'
+import type { TabRecorder } from '../export/videoExport'
 import { demoSlideshow } from '../data/demo'
 import { getOrnament } from '../data/ornaments'
 
@@ -12,6 +13,8 @@ interface EditorState {
   selectedSlide: number
   selectedElement: string | null
   previewOpen: boolean
+  /** Active tab recorder while exporting video via the preview. */
+  recorder: TabRecorder | null
   past: Slideshow[]
   future: Slideshow[]
 
@@ -27,6 +30,7 @@ interface EditorState {
   selectSlide: (index: number) => void
   selectElement: (id: string | null) => void
   setPreviewOpen: (open: boolean) => void
+  setRecorder: (rec: TabRecorder | null) => void
   loadDoc: (doc: Slideshow) => void
 
   addSlide: () => void
@@ -55,6 +59,7 @@ export const useStore = create<EditorState>((set, get) => ({
   selectedSlide: 0,
   selectedElement: null,
   previewOpen: false,
+  recorder: null,
   past: [],
   future: [],
 
@@ -104,6 +109,7 @@ export const useStore = create<EditorState>((set, get) => ({
   selectSlide: (index) => set({ selectedSlide: index, selectedElement: null }),
   selectElement: (id) => set({ selectedElement: id }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
+  setRecorder: (rec) => set({ recorder: rec }),
 
   loadDoc: (doc) =>
     set({ doc, past: [], future: [], selectedSlide: 0, selectedElement: null }),

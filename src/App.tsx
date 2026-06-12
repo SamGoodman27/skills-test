@@ -10,6 +10,8 @@ export default function App() {
   const doc = useStore((s) => s.doc)
   const previewOpen = useStore((s) => s.previewOpen)
   const setPreviewOpen = useStore((s) => s.setPreviewOpen)
+  const recorder = useStore((s) => s.recorder)
+  const setRecorder = useStore((s) => s.setRecorder)
   const undo = useStore((s) => s.undo)
   const redo = useStore((s) => s.redo)
   const selectedElement = useStore((s) => s.selectedElement)
@@ -44,7 +46,23 @@ export default function App() {
         <CanvasStage />
         <Inspector />
       </div>
-      {previewOpen && <Player doc={doc} onClose={() => setPreviewOpen(false)} />}
+      {previewOpen && (
+        <Player
+          doc={doc}
+          onClose={() => {
+            recorder?.stop()
+            setRecorder(null)
+            setPreviewOpen(false)
+          }}
+          onEnded={() => {
+            if (recorder) {
+              recorder.stop()
+              setRecorder(null)
+              setPreviewOpen(false)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

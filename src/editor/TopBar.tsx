@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { AutoDesignDialog } from './AutoDesignDialog'
+import { ExportMenu } from './ExportMenu'
 import { useStore } from '../state/store'
 import type { Slideshow } from '../types/slideshow'
 import { formatTime } from '../lib/util'
@@ -65,6 +66,7 @@ export function TopBar() {
         <button className="btn" onClick={() => setAutoDesignOpen(true)}>
           ✦ Auto-design
         </button>
+        <ExportMenu />
         <button className="btn btn-primary" onClick={() => setPreviewOpen(true)}>
           ▶ Preview
         </button>
