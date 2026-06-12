@@ -64,6 +64,29 @@ built from inline SVG placeholders, so it works with zero assets.
     so output quality is independent of machine speed, and muxes the
     embedded audio track.
 
+## AI assist (optional)
+
+Select a text or image element and the inspector grows an **AI assist**
+section: quick actions plus a free prompt.
+
+- **Text**: rewrite the copy ("shorter", "more poetic", or anything you
+  type — nearby slide text is sent along so tone stays consistent), or
+  restyle by description ("elegant serif", "like a vintage poster") —
+  the model returns values constrained to the style schema, so it can
+  never produce something the renderer can't draw.
+- **Images**: generative edits via prompt ("warmer light", "remove the
+  clutter") through Gemini's image model.
+- Everything is propose-then-apply: you see the result first, and an
+  applied AI edit is a normal undo step.
+
+Setup — keys live in a local service, never in the browser:
+
+```bash
+cp server/.env.example server/.env   # add ANTHROPIC_API_KEY (+ GEMINI_API_KEY for image edits)
+npm run server                       # terminal 1
+npm run dev                          # terminal 2 (proxies /ai to the service)
+```
+
 ## Architecture notes
 
 - `src/types/slideshow.ts` — the document schema. Everything (editor, player,
@@ -85,8 +108,7 @@ built from inline SVG placeholders, so it works with zero assets.
 1. ~~Schema + player + editor core~~
 2. ~~Ornaments, pattern & blurred-media backgrounds, theme auto-design~~
 3. ~~Exports: PNG / PDF / PPTX / HTML / WebM / MP4 renderer~~
-4. AI service layer: select-and-prompt copywriting, style-by-prompt,
-   image edits (Claude + image model)
+4. ~~AI service: select-and-prompt copywriting, style-by-prompt, image edits~~
 5. Magic Create: analyze media → plan → deterministic assembly, with a
    Uniform ↔ Varied ↔ Random consistency dial
 6. Beat-synced transitions, bundled royalty-free music, GIF export

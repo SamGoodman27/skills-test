@@ -12,6 +12,7 @@ import { ANIMATIONS, FONT_FAMILIES, TRANSITIONS } from '../types/slideshow'
 import { ColorInput, Field, NumberInput, Row, SelectInput, SliderInput } from './fields'
 import { readFileAsDataURL } from '../lib/util'
 import { ORNAMENTS } from '../data/ornaments'
+import { AiPanel } from './AiPanel'
 import { PATTERNS } from '../data/patterns'
 
 type Tab = 'element' | 'slide' | 'show'
@@ -84,6 +85,10 @@ function ElementPanel({ element, slideIndex }: { element: SlideElement; slideInd
               ? 'Video'
               : 'Ornament'}
       </div>
+
+      {(element.type === 'text' || element.type === 'image') && (
+        <AiPanel element={element} slideIndex={slideIndex} />
+      )}
 
       {element.type === 'text' && <TextFields element={element} update={update} />}
 
